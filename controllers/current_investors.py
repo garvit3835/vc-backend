@@ -15,7 +15,7 @@ def current_investors():
 
         # Query to fetch current investors for the provided startup_id
         cursor.execute("""
-            SELECT i.*
+            SELECT i.*, inv.*
             FROM investments i
             INNER JOIN investors inv ON i.investor = inv.investorid
             WHERE i.startup = %s
