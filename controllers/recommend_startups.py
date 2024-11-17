@@ -1,6 +1,10 @@
 from flask import request, jsonify
 from db.connection import Database
-# from recommendor import StartupInvestorRecommender
+from ml.data import startups_df , investors_df
+from ml.recommendor import StartupInvestorRecommender
+import numpy as np
+
+recommender = StartupInvestorRecommender(startups_df , investors_df)
 
 def recommend_startups():
     data = request.get_json()
@@ -16,8 +20,11 @@ def recommend_startups():
         cursor = connection.cursor()
         
         # Get top matches (list of startup_ids)
-        # matches = StartupInvestorRecommender.get_top_matches_for_investor(investor_id, top_n=5)
+        # matches = recommender.get_top_matches_for_investor(investor_id, top_n=5)
         matches= [1, 2, 3, 4, 5]
+
+        matches = matches.tolist() if isinstance(matches, np.ndarray) else matches
+
         
         if not matches:
             return jsonify({"message": "No recommendations found for this investor."}), 404
