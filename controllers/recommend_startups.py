@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from db.connection import Database
-from recommendor import StartupInvestorRecommender
+# from recommendor import StartupInvestorRecommender
 
 def recommend_startups():
     data = request.get_json()
@@ -16,7 +16,8 @@ def recommend_startups():
         cursor = connection.cursor()
         
         # Get top matches (list of startup_ids)
-        matches = StartupInvestorRecommender.get_top_matches_for_investor(investor_id, top_n=5)
+        # matches = StartupInvestorRecommender.get_top_matches_for_investor(investor_id, top_n=5)
+        matches= [1, 2, 3, 4]
         
         if not matches:
             return jsonify({"message": "No recommendations found for this investor."}), 404
