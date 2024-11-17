@@ -17,7 +17,7 @@ def recommend_startups():
         
         # Get top matches (list of startup_ids)
         # matches = StartupInvestorRecommender.get_top_matches_for_investor(investor_id, top_n=5)
-        matches= [1, 2, 3, 4]
+        matches= [1, 2, 3, 4, 5]
         
         if not matches:
             return jsonify({"message": "No recommendations found for this investor."}), 404
