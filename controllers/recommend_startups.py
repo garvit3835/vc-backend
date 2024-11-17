@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from db.connection import Database
+from recommendor import StartupInvestorRecommender
 
 def recommend_startups():
     data = request.get_json()
@@ -8,46 +9,35 @@ def recommend_startups():
         return jsonify({"message": "Invalid request. 'investor_id' is required."}), 400
 
     investor_id = data['investor_id']
-    startup_ids = ml_function_recommend_startups()
-
+    
     connection = None
-
     try:
         connection = Database.get_connection()
         cursor = connection.cursor()
-
-        # Example query: Fetch recommended startups for the given investor_id
-        # This assumes there is a relationship between investors and startups (e.g., interests, previous investments).
-        cursor.execute("""
-            SELECT s.name, s.market_position, s.industry, s.yearly_sales
-            FROM startups AS s
-            JOIN investor_preferences AS ip ON ip.startup_id = s.startupid
-            WHERE ip.investor_id = %s
-            ORDER BY s.market_position ASC
-            LIMIT 5
-        """, (investor_id,))
+        
+        # Get top matches (list of startup_ids)
+        matches = StartupInvestorRecommender.get_top_matches_for_investor(investor_id, top_n=5)
+        
+        if not matches:
+            return jsonify({"message": "No recommendations found for this investor."}), 404
+        
+        # Fetch all data for the recommended startups
+        cursor.execute(
+            "SELECT * FROM startups WHERE startupid = ANY(%s)",
+            (matches,)
+        )
         startups = cursor.fetchall()
         cursor.close()
+        
+        # Format the response as a list of dictionaries
+        column_names = [desc[0] for desc in cursor.description]
+        startups_data = [dict(zip(column_names, startup)) for startup in startups]
 
-        if not startups:
-            return jsonify({"message": "No startups found for the given investor_id."}), 404
-
-        # Format the response
-        startup_list = [
-            {
-                "name": startup[0],
-                "market_position": startup[1],
-                "industry": startup[2],
-                "yearly_sales": startup[3]
-            }
-            for startup in startups
-        ]
-
-        return jsonify({"recommended_startups": startup_list}), 200
-
+        return jsonify({"message": "Recommendations fetched successfully!", "startups": startups_data}), 200
+    
     except Exception as e:
         return jsonify({"message": "Database error", "error": str(e)}), 500
-
     finally:
         if connection:
             Database.release_connection(connection)
+
