@@ -15,7 +15,7 @@ def invested_startups():
 
         # Query to join investments and startups to get startup details for the given investor_id
         query = """
-            SELECT s.*
+            SELECT s.*, i.*
             FROM investments i
             INNER JOIN startups s ON i.startup = s.startupid
             WHERE i.investor = %s
