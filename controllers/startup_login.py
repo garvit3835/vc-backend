@@ -25,8 +25,6 @@ def startup_login():
         if user:
             startup_id = user[0]
             response = make_response(jsonify({"message": "Login successful!", "startup_id": startup_id}), 200)
-            # Set a cookie for the user with a key-value pair
-            response.set_cookie("user", "startup", httponly=True)  # No 'secure' flag
             return response
         else:
             return jsonify({"message": "Invalid username or password"}), 401

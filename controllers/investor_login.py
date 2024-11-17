@@ -25,8 +25,6 @@ def investor_login():
         if user:
             investor_id = user[0]  # Extract investor_id from the query result
             response = make_response(jsonify({"message": "Login successful!", "investor_id": investor_id}), 200)
-            # Set a cookie for the user with a key-value pair
-            response.set_cookie("user", "investor", httponly=True)  # No 'secure' flag
             return response
         else:
             return jsonify({"message": "Invalid username or password"}), 401
